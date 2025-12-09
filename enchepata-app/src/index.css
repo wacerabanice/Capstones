@@ -33,6 +33,7 @@ body {
   place-items: center;
   min-height: 100vh;
   background-color: rgb(150, 210, 141);
+  font-family:Georgia, 'Times New Roman', Times, serif
 }
 
 h1 {
@@ -61,11 +62,11 @@ button:focus-visible {
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
+    color: #79cf94;
     background-color: #ffffff;
   }
   a:hover {
-    color: #747bff;
+    color: #064e15;
   }
   button {
     background-color: #f9f9f9;
