@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 
-// Simple Investment Calculator Component
+
 function InvestmentCalculator({ price }) {
   const [amount, setAmount] = useState("");
   const [growth, setGrowth] = useState("");

@@ -12,7 +12,7 @@ export default function QuoteCard({ item, quote, historical }) {
       <div className="flex justify-between items-start">
         <div>
           <h3 className="text-lg font-semibold">{item.symbol} — {item.name}</h3>
-          <p className="text-sm text-slate-500">{item.type.toUpperCase()}</p>
+          <p className="text-sm text-green-500">{item.type.toUpperCase()}</p>
         </div>
         <div className="text-right">
           <div className="text-xl font-bold">{price}</div>

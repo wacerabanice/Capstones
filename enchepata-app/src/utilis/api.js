@@ -1,22 +1,30 @@
-import axios from 'axios'
+import axios from "axios";
 
-const API_KEY = import.meta.env.VITE_FINAGE_API_KEY
-const BASE = 'https://api.finage.co.uk'
+// Replace with your real FCS API key
+const API_KEY = "pL5RDDfzXI4vm0h6a3wNmrhLgdnTpwLQv";
+const BASE_URL = "https://fcsapi.com/api-v3/stock/latest";
 
-export const fetchQuote = async (symbol) => {
-  const url = `${BASE}/last/stock/${encodeURIComponent(symbol)}?apikey=${API_KEY}`
-  const res = await axios.get(url)
-  return res.data
-}
+/**
+ * Fetch the latest stock price for a given symbol.
+ * @param {string} symbol - The stock symbol, e.g., "AAPL"
+ * @returns {object|null} - Returns the first stock object or null if not found
+ */
+export const fetchLatestPrice = async (symbol) => {
+  try {
+    const res = await axios.get(BASE_URL, {
+      params: {
+        symbol: symbol,
+        access_key: API_KEY,
+      },
+    });
 
-export const fetchHistorical = async (symbol, from='2024-01-01', to=new Date().toISOString().slice(0,10)) => {
-  const url = `${BASE}/stock/${encodeURIComponent(symbol)}/${from}/${to}?apikey=${API_KEY}`
-  const res = await axios.get(url)
-  return res.data
-}
-
-export const fetchMarketNews = async () => {
-  const url = `${BASE}/marketnews?apikey=${API_KEY}`
-  const res = await axios.get(url)
-  return res.data
-}
+    if (res.data.status && res.data.response && res.data.response.length > 0) {
+      return res.data.response[0]; // Return first match
+    } else {
+      return null; // No data found
+    }
+  } catch (err) {
+    console.error("FCS API error:", err);
+    throw new Error("Failed to fetch stock price");
+  }
+};

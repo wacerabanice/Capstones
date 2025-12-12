@@ -17,19 +17,26 @@ export default function Calculator() {
   }
 
   return (
-    <div className="bg-green-700 p-4 rounded shadow">
-      <h2 className="text-black font-bold mb-2">Investment Calculator:</h2>
-      <form onSubmit={calculate} className="space-y-2">
-        <input value={amount} onChange={e=>setAmount(e.target.value)} placeholder="Amount invested" className="w-full bg-green-600 text-black p-2 border rounded"/>
-        <input value={rate} onChange={e=>setRate(e.target.value)} placeholder="Expected annual growth (%)" className="w-full text-black bg-green-600 p-2 border rounded"/>
-        <input value={years} onChange={e=>setYears(e.target.value)} placeholder="Years" className="w-full p-2  bg-green-600 text-black border rounded"/>
-        <button className="w-full bg-green-900 text-black font-bold p-2 rounded">Calculate</button>
+    <div className="mt-10 p-4 rounded shadow">
+      <h2 className="text-2xl mb-4 text-center">Investment Calculator:</h2>
+      <form onSubmit={calculate} className="space-y-4">
+        <input value={amount} onChange={e=>setAmount(e.target.value)} placeholder="Amount invested" className="w-full p-2 border rounded"/>
+        <input value={rate} onChange={e=>setRate(e.target.value)} placeholder="Expected annual growth (%)" className="w-full p-2 border rounded"/>
+        <input value={years} onChange={e=>setYears(e.target.value)} placeholder="Years" className="w-full p-2  border rounded"/>
+        <div className="flex justify-center">
+  <button
+    type="submit"
+    className="bg-green-900 text-white px-6 py-2 rounded hover:bg-lime"
+  >
+    Calculate
+  </button>
+</div>
       </form>
 
       {result !== null && (
-        <div className="mt-3 bg-green-700 p-3 rounded">
-          <div className="text-lg font-semibold text-black">Future value:</div>
-          <div className="text-black bg-green font-semibold">{result.toFixed(2)}</div>
+        <div className="mt-6 p-3 rounded">
+          <div className="text-3xl text-center text-green-900">Future value:</div>
+          <div className="text-3xl text-center text-green-900">{result.toFixed(2)}</div>
         </div>
       )}
     </div>
