@@ -1,8 +1,8 @@
 from django.urls import path
-from .views import QuoteView, HistoricalView, NewsView
+from .views import quote, historical, news
 
 urlpatterns = [
-    path('quote/<str:symbol>/', QuoteView.as_view(), name='quote'),
-    path('historical/<str:symbol>/', HistoricalView.as_view(), name='historical'),
-    path('news/', NewsView.as_view(), name='news'),
+    path('quote/<str:symbol>/', quote, name='quote'),
+    path('historical/<str:symbol>/', historical, name='historical'),
+    path('news/', news, name='news'),
 ]

@@ -2,18 +2,17 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Investment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='investments')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     symbol = models.CharField(max_length=10)
     amount_invested = models.FloatField()
     purchase_price = models.FloatField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    date_purchased = models.DateField(auto_now_add=True)
 
-    class Meta:
-        unique_together = ['user', 'symbol']
+    def __str__(self):
+        return f"{self.symbol} ({self.user.username})"
 
 class Transaction(models.Model):
-    investment = models.ForeignKey(Investment, on_delete=models.CASCADE, related_name='transactions')
-    type = models.CharField(max_length=10, choices=[('buy', 'Buy'), ('sell', 'Sell')])
+    investment = models.ForeignKey(Investment, on_delete=models.CASCADE)
     quantity = models.FloatField()
     price = models.FloatField()
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateField(auto_now_add=True)
