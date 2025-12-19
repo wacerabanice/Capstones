@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Enchepata Investing - Backend Demo</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #62d78b;
+      padding: 30px;
+    }
+    h2 { margin-top: 0; }
+    input, button {
+      padding: 8px;
+      margin: 4px 0;
+    }
+    button { cursor: pointer; }
+    .box {
+      background: #c0e8d2;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+    }
+    .hidden { display: none; }
+    table {
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+      text-align: center;
+    }
+    th { background: #8ac38f; 
+            color: #c0e8d2;
+    }
+    .error { color: rgb(118, 31, 31); }
+  </style>
+</head>
+
+<body>
+
+<!--Login-->
+<div id="loginBox" class="box">
+  <h2>🔐 Login</h2>
+  <input id="username" placeholder="Username"><br>
+  <input id="password" type="password" placeholder="Password"><br>
+  <button onclick="login()">Login</button>
+  <p id="loginError" class="error"></p>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard" class="hidden">
+
+  <button onclick="logout()">Logout</button>
+
+  <!-- MARKET -->
+  <div class="box">
+    <h2>📈 Market Quote</h2>
+    <input id="symbol" placeholder="Symbol (AAPL)">
+    <button onclick="getQuote()">Fetch</button>
+    <p id="marketError" class="error"></p>
+
+    <table id="quoteTable" class="hidden">
+      <tr>
+        <th>Symbol</th>
+        <th>Price</th>
+        <th>High</th>
+        <th>Low</th>
+        <th>Change</th>
+        <th>%</th>
+      </tr>
+      <tbody id="quoteBody"></tbody>
+    </table>
+  </div>
+
+  <!-- CALCULATOR -->
+  <div class="box">
+    <h2>🧮 Investment Calculator</h2>
+    <input id="amount" placeholder="Amount"><br>
+    <input id="growth" placeholder="Growth %"><br>
+    <input id="years" placeholder="Years"><br>
+    <button onclick="calculate()">Calculate</button>
+    <p id="calcResult"></p>
+  </div>
+
+  <!-- INVESTMENTS -->
+  <div class="box">
+    <h2>💼 Investments</h2>
+
+    <input id="invSymbol" placeholder="Symbol">
+    <input id="invAmount" placeholder="Amount">
+    <input id="invPrice" placeholder="Purchase Price">
+    <button onclick="addInvestment()">Add</button>
+
+    <table>
+      <tr>
+        <th>Symbol</th>
+        <th>Amount</th>
+        <th>Price</th>
+      </tr>
+      <tbody id="investmentsBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const API = "http://127.0.0.1:8000/api";
+
+
+function showDashboard() {
+  loginBox.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+}
+
+function showLogin() {
+  dashboard.classList.add("hidden");
+  loginBox.classList.remove("hidden");
+}
+
+function logout() {
+  localStorage.removeItem("token");
+  showLogin();
+}
+
+
+function authHeader() {
+  return {
+    "Authorization": "Bearer " + localStorage.getItem("token")
+  };
+}
+
+/* Login  */
+async function login() {
+  loginError.textContent = "";
+
+  const user = username.value;
+  const pass = password.value;
+
+  const res = await fetch(`${API}/users/login/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: user, password: pass })
+  });
+
+  const data = await res.json();
+
+  if (data.access) {
+    localStorage.setItem("token", data.access);
+    showDashboard();
+    loadInvestments();
+  } else {
+    loginError.textContent = "Invalid username or password";
+  }
+}
+
+/* Market  */
+async function getQuote() {
+  marketError.textContent = "";
+  quoteTable.classList.add("hidden");
+
+  const res = await fetch(
+    `${API}/market/quote/${symbol.value}/`,
+    { headers: authHeader() }
+  );
+
+  if (res.status === 401) {
+    logout();
+    return;
+  }
+
+  const data = await res.json();
+  const q = data.response?.[0];
+
+  if (!q) {
+    marketError.textContent = "No data found";
+    return;
+  }
+
+  quoteBody.innerHTML = `
+    <tr>
+      <td>${q.s}</td>
+      <td>${q.c}</td>
+      <td>${q.h}</td>
+      <td>${q.l}</td>
+      <td>${q.ch}</td>
+      <td>${q.cp}</td>
+    </tr>
+  `;
+  quoteTable.classList.remove("hidden");
+}
+
+/*  Calculator */
+async function calculate() {
+  const res = await fetch(`${API}/calculate/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeader()
+    },
+    body: JSON.stringify({
+      amount: amount.value,
+      growth: growth.value,
+      years: years.value
+    })
+  });
+
+  if (res.status === 401) {
+    logout();
+    return;
+  }
+
+  const data = await res.json();
+  calcResult.textContent =
+    `Future Value: ${data.future_value}, Profit: ${data.profit}`;
+}
+
+/* Investments  */
+async function loadInvestments() {
+  const res = await fetch(`${API}/investments/`, {
+    headers: authHeader()
+  });
+
+  if (res.status === 401) {
+    logout();
+    return;
+  }
+
+  const data = await res.json();
+
+  investmentsBody.innerHTML = "";
+  data.forEach(i => {
+    investmentsBody.innerHTML += `
+      <tr>
+        <td>${i.symbol}</td>
+        <td>${i.amount_invested}</td>
+        <td>${i.purchase_price}</td>
+      </tr>
+    `;
+  });
+}
+
+async function addInvestment() {
+  await fetch(`${API}/investments/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeader()
+    },
+    body: JSON.stringify({
+      symbol: invSymbol.value,
+      amount_invested: invAmount.value,
+      purchase_price: invPrice.value
+    })
+  });
+
+  loadInvestments();
+}
+
+/*  Load  */
+showLogin();
+</script>
+
+</body>
+</html>
