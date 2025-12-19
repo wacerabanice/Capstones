@@ -96,7 +96,5 @@ src/
 1. Add historical price charts
 2. Implement dark mode
 3. Add authentication and cloud-based portfolio storage
-
-Improve error messaging and UX feedback
-
-Add unit tests for calculation logic
+4. Improve error messaging and UX feedback
+5. Add unit tests for calculation logic
